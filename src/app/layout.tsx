@@ -1,4 +1,5 @@
 import '@/app/globals.css';
+import Nav from "@/components/Nav"
 
 export default function RootLayout({
   children,
@@ -7,8 +8,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className='min-w-screen min-h-screen bg-slate-700'>
-        {children}
+      <body>
+        <main className='min-h-screen bg-slate-700'>
+          <Nav/>
+          {children}
+        </main>
       </body>
     </html>
   )

@@ -9,7 +9,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <main className='min-h-screen bg-slate-700'>
+        <main className='min-h-screen min-w-screen bg-slate-700'>
           <Nav/>
           {children}
         </main>

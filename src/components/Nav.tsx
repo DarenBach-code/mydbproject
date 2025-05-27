@@ -3,11 +3,22 @@ import Link from 'next/link';
 
 const Nav = () => {
   return (
-    <Link href="/" className='flex justify-center p-8'>
-        <House color='white' size={48}></House>
-    </Link>
-    
-  )
-}
+    <nav className="flex items-center justify-between p-8 bg-transparent">
+      {/* Left: Home Icon */}
+      <Link href="/" className="flex items-center">
+        <House color="white" size={48} />
+      </Link>
+      {/* Right: Auth Buttons */}
+      <div className="flex gap-4">
+        <button className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition">
+          Login
+        </button>
+        <button className="bg-gray-600 text-white px-6 py-2 rounded-full hover:bg-gray-700 transition">
+          Sign Out
+        </button>
+      </div>
+    </nav>
+  );
+};
 
-export default Nav
+export default Nav;

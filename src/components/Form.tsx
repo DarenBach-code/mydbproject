@@ -1,10 +1,15 @@
+import React from 'react'
 
-
-export default function Form() {
+const Form = () => {
   return (
     <div>
-        <h1 className='justify-self-center p-8 text-xl'>Make selectins for movies</h1>
-        <input className='w-full bg-white text-black rounded-lg' type='text' placeholder='Select a movie'></input>
+      <input
+        type="text"
+        placeholder="Enter something..."
+        className="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
     </div>
   )
 }
+
+export default Form

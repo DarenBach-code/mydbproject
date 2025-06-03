@@ -8,14 +8,14 @@ const Nav = () => {
       <Link href="/" className="flex items-center">
         <House color="white" size={48} />
       </Link>
-      {/* Right: Auth Buttons */}
+      {/* Right: Auth Button */}
       <div className="flex gap-4">
-        <button className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition">
+        <Link
+          href="/login"
+          className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition"
+        >
           Login
-        </button>
-        <button className="bg-gray-600 text-white px-6 py-2 rounded-full hover:bg-gray-700 transition">
-          Sign Out
-        </button>
+        </Link>
       </div>
     </nav>
   );

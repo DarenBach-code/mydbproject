@@ -1,4 +1,6 @@
 "use client";
+import Crud from "@/components/Crud"
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
@@ -59,6 +61,7 @@ const page = () => {
       <div className="flex justify-center text-white text-center text-4xl p-12">
         This is the Admin page. You can make changes to the movie database.
       </div>
+      <Crud/>
     </>
   );
 }

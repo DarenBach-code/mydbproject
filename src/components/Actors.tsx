@@ -1,0 +1,160 @@
+import React, { useState } from "react";
+import { Plus, Pencil, Search } from "lucide-react";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+const Actors = () => {
+  const [actorInput, setActorInput] = useState("");
+  const [actorResults, setActorResults] = useState<any[]>([]);
+  const [loadingActors, setLoadingActors] = useState(false);
+  const [showAddActor, setShowAddActor] = useState(false);
+  const [newActor, setNewActor] = useState({ name: "" });
+  const [editingActor, setEditingActor] = useState<any | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+
+  // Search Actors
+  const handleSearchActors = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setActorInput(value);
+
+    if (value.trim() === "") {
+      setActorResults([]);
+      return;
+    }
+
+    setLoadingActors(true);
+    const { data, error } = await supabase
+      .from("Actors")
+      .select("name")
+      .ilike("name", `%${value}%`)
+      .limit(5);
+
+    setActorResults(error ? [] : data || []);
+    setLoadingActors(false);
+  };
+
+  // Add actor logic
+  const handleAddActor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage(null);
+    if (!newActor.name.trim()) {
+      setMessage("Actor name cannot be empty.");
+      return;
+    }
+    const { error } = await supabase.from("Actors").insert([{ name: newActor.name.trim() }]);
+    if (error) {
+      setMessage("Failed to add actor.");
+    } else {
+      setMessage("Actor added!");
+      setShowAddActor(false);
+      setNewActor({ name: "" });
+      setActorInput("");
+      setActorResults([]);
+    }
+  };
+
+  // Clear message after 5 seconds
+  React.useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => setMessage(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
+
+  return (
+    <div className="w-full max-w-xl mb-8">
+      <h2 className="text-xl font-semibold text-white mb-2 text-center">Actors</h2>
+      <div className="flex items-center gap-2 mb-2">
+        <Search color="white" />
+        <input
+          type="text"
+          placeholder="Search actors..."
+          className="flex-1 px-3 py-2 bg-slate-800 text-white rounded-lg border border-gray-300 ml-2"
+          value={actorInput}
+          onChange={handleSearchActors}
+        />
+        <button
+          type="button"
+          onClick={() => setShowAddActor(true)}
+          className="bg-sky-600 hover:bg-sky-700 text-white rounded-full p-2 flex items-center justify-center"
+          title="Add Actor"
+        >
+          <Plus size={24} />
+        </button>
+      </div>
+      {showAddActor && (
+        <form
+          onSubmit={handleAddActor}
+          className="bg-slate-700 mt-2 p-4 rounded-lg flex flex-col gap-3"
+        >
+          <input
+            type="text"
+            placeholder="Actor Name"
+            className="px-3 py-2 bg-slate-800 text-white rounded-lg border border-gray-300"
+            value={newActor.name}
+            onChange={e => setNewActor({ name: e.target.value })}
+            required
+          />
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+            >
+              Add Actor
+            </button>
+            <button
+              type="button"
+              className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg"
+              onClick={() => setShowAddActor(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+      {loadingActors && <p className="text-gray-400 text-center">Searching...</p>}
+      {(actorResults.length > 0 || actorInput) && (
+        <div className="w-full border-2 border-gray-400 rounded-lg p-6 bg-slate-800 mt-2">
+          {actorResults.length > 0 ? (
+            <ul className="w-full flex flex-col items-center">
+              {actorResults.map((actor, idx) => (
+                <li
+                  key={idx}
+                  className="mb-4 py-3 px-2 w-full relative flex items-center justify-between"
+                >
+                  <span className="font-bold text-white mx-auto w-full text-center">{actor.name}</span>
+                  <button
+                    className="ml-4 bg-slate-600 hover:bg-blue-600 rounded-full p-2"
+                    title="Edit Actor"
+                    onClick={() => setEditingActor(actor)}
+                  >
+                    <Pencil size={20} color="white" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-400 text-center">No results found.</p>
+          )}
+        </div>
+      )}
+      {/* Show the message here, just for actors */}
+      {message && (
+        <div
+          className={
+            message === "Actor added!"
+              ? "text-center text-green-400 mt-2"
+              : "text-center text-red-400 mt-2"
+          }
+        >
+          {message}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Actors;

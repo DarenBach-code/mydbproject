@@ -1,10 +1,6 @@
 import React, { useState } from "react";
 import { Plus, Pencil, Search, X, Edit2 } from "lucide-react";
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import supabase from "../lib/supabaseClient";
 
 const Genres = () => {
   const [genreInput, setGenreInput] = useState("");

@@ -1,14 +1,10 @@
 "use client";
 import Crud from "@/components/Crud"
+import supabase from "../../lib/supabaseClient";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@supabase/supabase-js";
 import AdminNav from "@/components/AdminNav";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const page = () => {
   const router = useRouter();

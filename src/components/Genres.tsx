@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Plus, Pencil, Search } from "lucide-react";
+import { Plus, Pencil, Search, X, Edit2 } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -13,6 +13,7 @@ const Genres = () => {
   const [showAddGenre, setShowAddGenre] = useState(false);
   const [newGenre, setNewGenre] = useState({ name: "" });
   const [editingGenre, setEditingGenre] = useState<any | null>(null);
+  const [editName, setEditName] = useState("");
   const [message, setMessage] = useState<string | null>(null);
 
   // Search Genres
@@ -28,7 +29,7 @@ const Genres = () => {
     setLoadingGenres(true);
     const { data, error } = await supabase
       .from("Genre")
-      .select("name")
+      .select("id, name")
       .ilike("name", `%${value}%`)
       .limit(5);
 
@@ -53,6 +54,45 @@ const Genres = () => {
       setNewGenre({ name: "" });
       setGenreInput("");
       setGenreResults([]);
+    }
+  };
+
+  // Delete genre
+  const handleDeleteGenre = async (genre: any) => {
+    setMessage(null);
+    const { error } = await supabase.from("Genre").delete().eq("id", genre.id);
+    if (error) {
+      setMessage("Failed to delete genre.");
+    } else {
+      setMessage("Genre deleted!");
+      setGenreResults(genreResults.filter(g => g.id !== genre.id));
+    }
+  };
+
+  // Start editing genre
+  const startEditGenre = (genre: any) => {
+    setEditingGenre(genre);
+    setEditName(genre.name);
+  };
+
+  // Save edited genre
+  const handleEditGenre = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editName.trim()) {
+      setMessage("Name cannot be empty.");
+      return;
+    }
+    const { error } = await supabase
+      .from("Genre")
+      .update({ name: editName.trim() })
+      .eq("id", editingGenre.id);
+    if (error) {
+      setMessage("Failed to update genre.");
+    } else {
+      setMessage("Genre updated!");
+      setGenreResults(genreResults.map(g => g.id === editingGenre.id ? { ...g, name: editName.trim() } : g));
+      setEditingGenre(null);
+      setEditName("");
     }
   };
 
@@ -125,14 +165,51 @@ const Genres = () => {
                   key={idx}
                   className="mb-4 py-3 px-2 w-full relative flex items-center justify-between"
                 >
-                  <span className="font-bold text-white mx-auto w-full text-center">{genre.name}</span>
-                  <button
-                    className="ml-4 bg-slate-600 hover:bg-blue-600 rounded-full p-2"
-                    title="Edit Genre"
-                    onClick={() => setEditingGenre(genre)}
-                  >
-                    <Pencil size={20} color="white" />
-                  </button>
+                  {editingGenre && editingGenre.id === genre.id ? (
+                    <form onSubmit={handleEditGenre} className="flex w-full items-center gap-2">
+                      <input
+                        className="flex-1 px-2 py-1 rounded bg-slate-900 text-white border border-gray-400"
+                        value={editName}
+                        onChange={e => setEditName(e.target.value)}
+                        autoFocus
+                      />
+                      <button
+                        type="submit"
+                        className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2"
+                        title="Save"
+                      >
+                        <Pencil size={18} />
+                      </button>
+                      <button
+                        type="button"
+                        className="bg-red-600 hover:bg-red-700 text-white rounded-full p-2"
+                        title="Cancel"
+                        onClick={() => setEditingGenre(null)}
+                      >
+                        <X size={18} />
+                      </button>
+                    </form>
+                  ) : (
+                    <>
+                      <span className="font-bold text-white mx-auto w-full text-center">{genre.name}</span>
+                      <div className="flex gap-2">
+                        <button
+                          className="bg-red-600 hover:bg-red-700 rounded-full p-2"
+                          title="Delete Genre"
+                          onClick={() => handleDeleteGenre(genre)}
+                        >
+                          <X size={20} />
+                        </button>
+                        <button
+                          className="bg-yellow-500 hover:bg-yellow-600 rounded-full p-2"
+                          title="Edit Genre"
+                          onClick={() => startEditGenre(genre)}
+                        >
+                          <Edit2 size={20} />
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </li>
               ))}
             </ul>
@@ -145,7 +222,7 @@ const Genres = () => {
       {message && (
         <div
           className={
-            message === "Genre added!"
+            message === "Genre added!" || message === "Genre updated!" || message === "Genre deleted!"
               ? "text-center text-green-400 mt-2"
               : "text-center text-red-400 mt-2"
           }
